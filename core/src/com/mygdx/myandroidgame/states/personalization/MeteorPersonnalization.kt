@@ -103,7 +103,7 @@ class MeteorPersonnalization(gsm: GameStateManager) : GameState(gsm) {
         cam.update()
 
         for (i in 1..gsm.meteorsAvailable)
-            meteorImages[i-1] = Texture(Gdx.files.internal("projectile/comet"+(i-1)+".png"))
+            meteorImages[i-1] = Texture(Gdx.files.internal("projectile/meteor"+(i-1)+".png"))
 
         var indX = 0
         var indY = 0
