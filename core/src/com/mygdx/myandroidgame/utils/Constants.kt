@@ -19,4 +19,6 @@ object Constants {
     const val BIT_NOLIGHT: Short = 8
     const val BIT_BREAKABLE: Short = 16
     const val numberOfLevels: Int = 6
+    const val playerWidth = 32
+    const val playerHeight = 70
 }
