@@ -35,7 +35,7 @@ class EndOfLevelState(gsm: GameStateManager) : GameState(gsm) {
     private val nextTextureBounds = Rectangle(nextImagePosition.x, nextImagePosition.y, nextImageSize.x, nextImageSize.y);
     private val menuTextureBounds = Rectangle(menuImagePosition.x, menuImagePosition.y, menuImageSize.x, menuImageSize.y)
 
-    private var new:Boolean = gsm.newUnlock
+    private var new:Boolean = gsm.newUnlock || gsm.goldMedal
 
     // FA55E9 -> couleur écriture
     // 85 -> taille ecriture
@@ -60,12 +60,13 @@ class EndOfLevelState(gsm: GameStateManager) : GameState(gsm) {
     override fun update(dt: Float) {
         handleInput()
 
-       if(gsm.newUnlock){
+       if(gsm.newUnlock || gsm.goldMedal){
            decalage += 0.05f
            if (decalage < 17f){
                unlockImagePosition.y = Constants.WINDOWS_HEIGHT/decalage
            } else {
                gsm.newUnlock = false
+               gsm.goldMedal = false
            }
        }
     }
