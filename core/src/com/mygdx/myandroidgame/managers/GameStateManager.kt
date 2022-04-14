@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.myandroidgame.states.levels.StateLevel1
 import com.mygdx.myandroidgame.states.levels.StateLevel2
 import com.mygdx.myandroidgame.states.levels.StateLevel3
+import kotlin.collections.HashMap
 
 class GameStateManager {
 
@@ -13,6 +14,7 @@ class GameStateManager {
 
     var stateLevelNumber: Int = 1   // level sélectionné
     var levelsAvailable: Int = 1
+    val totalNumberOfLevel: Int = 3
 
     var selectedBackground: Int = 0
     var backgroundsAvailable: Int = 1
@@ -28,6 +30,10 @@ class GameStateManager {
     var selectedGroundPlatform: Int = 0
 
     var newUnlock: Boolean = false
+    var goldMedal: Boolean = false
+    var goldMedalHasBeenEarned: HashMap<Int, Boolean> = HashMap()
+    var bestRecordOnLevel: HashMap<Int, Float> = HashMap()
+
 
 
     fun push(gameState: GameState) {  // place en haut de la pile stack gameStates l'objet gameState en paramètre
@@ -55,6 +61,13 @@ class GameStateManager {
             else -> {
                 StateLevel2(this)
             }
+        }
+    }
+
+    init {
+        for (x in 1..totalNumberOfLevel) {
+            goldMedalHasBeenEarned[x] = false
+            bestRecordOnLevel[x] = 0f
         }
     }
 }
