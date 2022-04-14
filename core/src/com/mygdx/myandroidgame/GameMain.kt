@@ -5,9 +5,6 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.myandroidgame.managers.GameStateManager
-import com.mygdx.myandroidgame.managers.SimpleDirectionGestureDetector
-import com.mygdx.myandroidgame.managers.SimpleDirectionGestureDetector.DirectionListener
-import com.mygdx.myandroidgame.states.EndOfLevelState
 import com.mygdx.myandroidgame.states.MainMenu
 
 
@@ -19,22 +16,6 @@ class GameMain : ApplicationAdapter() {
         sb = SpriteBatch()
         gsm = GameStateManager()
         gsm.push(MainMenu(gsm))
-
-        Gdx.input.inputProcessor = SimpleDirectionGestureDetector(object : DirectionListener {
-            override fun onUp() {
-                print("bonjour")
-            }
-            override fun onRight() {
-                print("bonjour")
-            }
-            override fun onLeft() {
-                print("bonjour")
-            }
-            override fun onDown() {
-                print("bonjour")
-            }
-        })
-
     }
 
     override fun render() {
