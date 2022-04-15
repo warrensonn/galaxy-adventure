@@ -27,7 +27,7 @@ class StaticPlatform(world: World, id: String, x: Float, y: Float, width: Int, h
 
         fd.shape = shape
         fd.density = 1.0f
-        if (id=="ground3")
+        if (id=="ground3" || id=="air3")
             fd.filter.categoryBits = Constants.BIT_INVISIBLE_WALL
 
         body.createFixture(fd).userData = this
