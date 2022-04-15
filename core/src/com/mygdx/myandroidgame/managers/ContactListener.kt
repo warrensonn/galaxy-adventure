@@ -3,6 +3,7 @@ package com.mygdx.myandroidgame.managers
 import com.badlogic.gdx.physics.box2d.*
 import com.mygdx.myandroidgame.sprite.PlayerBodyBuilder
 import com.mygdx.myandroidgame.sprite.CircleBody
+import com.mygdx.myandroidgame.sprite.KinematicPlatform
 import com.mygdx.myandroidgame.sprite.StaticPlatform
 
 
@@ -10,7 +11,6 @@ class MyContactListener : ContactListener {
     override fun beginContact(contact: Contact) {
         val fa: Fixture = contact.fixtureA
         val fb: Fixture = contact.fixtureB
-        println("nouveau contact")
 
         if (fa == null || fb == null)
             return
@@ -25,6 +25,12 @@ class MyContactListener : ContactListener {
                 var tbb: StaticPlatform = fb.userData as StaticPlatform
                 if (tbb.id == "ground4")
                     tba.hasHitGround4 = true
+            } else if (fb.userData is KinematicPlatform) {
+                var tbb: KinematicPlatform = fb.userData as KinematicPlatform
+                if (tbb.id == "movingTiny")
+                    tba.hasHitMovingTiny = true
+
+
             }
         }
 
