@@ -10,6 +10,7 @@ class PlayerBodyBuilder(world: World, id: String, x: Float, y: Float, width: Int
     var id: String = id
     var body: Body
     var hasBeenHitByMeteor = false
+    var hasHitMovingTiny = false
     var hasHitGround4: Boolean = false
     private val def = BodyDef()
     private val shape = PolygonShape()
