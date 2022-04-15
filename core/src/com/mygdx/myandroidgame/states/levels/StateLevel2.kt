@@ -41,61 +41,60 @@ class StateLevel2(gsm: GameStateManager) : GameState(gsm) {
     // Plaftorms
     private var ground: Texture = Texture(Gdx.files.internal("grounds/ground" + gsm.selectedGroundPlatform + ".png"))
 
-    private val groundPlatform1Size: Vector2 = Vector2(380f, 15f)
-    private val groundPlatform1Position: Vector2 = Vector2(Constants.WINDOWS_WIDTH/12.5f,
+    private val groundPlatform1Size: Vector2 = Vector2(250f, 15f)
+    private val groundPlatform1Position: Vector2 = Vector2(Constants.WINDOWS_WIDTH/20f,
             groundPlatformHeight)
     private var groundPlatform1: StaticPlatform = StaticPlatform(world, "ground1", groundPlatform1Position.x, groundPlatform1Position.y,
             groundPlatform1Size.x.toInt(), groundPlatform1Size.y.toInt(), isStatic = true, fixedRotation = true) // platform gauche
 
-    private val groundPlatform2Size: Vector2 = Vector2(4f, 12f)
-    private val groundPlatform2Position: Vector2 = Vector2(Constants.WINDOWS_WIDTH/2f,
-            groundPlatformHeight)
-    // small platforms right
-    private var groundPlatform2: StaticPlatform = StaticPlatform(world, "ground2", groundPlatform2Position.x, groundPlatform2Position.y,
-            groundPlatform2Size.x.toInt(), groundPlatform2Size.y.toInt(), isStatic = true, fixedRotation = false)
-    private var groundPlatform3: StaticPlatform = StaticPlatform(world, "ground3", groundPlatform2Position.x+170, groundPlatform2Position.y,
-            groundPlatform2Size.x.toInt(), groundPlatform2Size.y.toInt(), isStatic = true, fixedRotation = true)
-    private var groundPlatform4: StaticPlatform = StaticPlatform(world, "ground4", groundPlatform2Position.x+340, groundPlatform2Position.y,
-            groundPlatform2Size.x.toInt(), groundPlatform2Size.y.toInt(), isStatic = true, fixedRotation = true)
+    private var groundPlatformEnd: StaticPlatform = StaticPlatform(world, "groundEnd", 53*ppm, groundPlatform1Position.y,
+            75, 1, isStatic = true, fixedRotation = true) // platform de fin
 
-    private var hiddenPlatform: StaticPlatform = StaticPlatform(world, "hidden",-60f, 200f, 30, 30,
-            isStatic = true, fixedRotation = true)
+    private val airPlatform3Size: Vector2 = Vector2(12f, 12f)
+    private val airPlatform3Position: Vector2 = Vector2(Constants.WINDOWS_WIDTH/1.7f,
+            350f)
+    // small platforms right
+    private var airPlatform3: StaticPlatform = StaticPlatform(world, "air3", airPlatform3Position.x, airPlatform3Position.y,
+            airPlatform3Size.x.toInt(), airPlatform3Size.y.toInt(), isStatic = true, fixedRotation = false)
+
+    private var airPlatform2: KinematicPlatform = KinematicPlatform(world, "staticSmall",Constants.WINDOWS_WIDTH/2.6f, 220f, 30, 30)
 
     // air platform
     private var air: Texture = Texture(Gdx.files.internal("grounds/air" + gsm.selectedAirPlatform + ".png"))
 
-    private val movingPlatformSize: Vector2 = Vector2(30f, 30f)
-    private val movingPlatformPosition: Vector2 = Vector2(20f, 350f)
-    private var movingPlatform: KinematicPlatform = KinematicPlatform(world, "moving", movingPlatformPosition.x, movingPlatformPosition.y, movingPlatformSize.x.toInt(), movingPlatformSize.y.toInt())
-
     private val staticPlatformSize: Vector2 = Vector2(Constants.WINDOWS_WIDTH/8f, 1f)
-    private val staticPlatformPosition: Vector2 = Vector2(Constants.WINDOWS_WIDTH/3.2f, 300f)
+    private val staticPlatformPosition: Vector2 = Vector2(Constants.WINDOWS_WIDTH/5f, 297f)
     private var airPlatform1: KinematicPlatform = KinematicPlatform(world, "air", staticPlatformPosition.x, staticPlatformPosition.y,
             staticPlatformSize.x.toInt(), staticPlatformSize.y.toInt())
+
+    private val movingPlatformSize: Vector2 = Vector2(40f, 5f)
+    private val movingPlatformPosition: Vector2 = Vector2(Constants.WINDOWS_WIDTH/3.5f, groundPlatformHeight)
+    private var movingPlatform: KinematicPlatform = KinematicPlatform(world, "movingTiny", movingPlatformPosition.x, movingPlatformPosition.y, movingPlatformSize.x.toInt(), movingPlatformSize.y.toInt())
 
     // meteor
     private var meteorTexture: Texture = Texture(Gdx.files.internal("projectile/meteor" + gsm.selectedMeteor + ".png"))
     private val meteorSize: Float = 0.65f
-    private val meteorPosition: Vector2 = Vector2(Constants.WINDOWS_WIDTH/3.2f, 600f)
-    private val meteor2Position: Vector2 = Vector2(groundPlatform2Position.x+380, 600f)
+    private val meteorPosition: Vector2 = Vector2(Constants.WINDOWS_WIDTH/3.8f, 600f)
     private var meteorCircleBody: CircleBody? = null
     private var meteorQueueBody: MeteorQueue? = null
-
-
 
     // counter display on screen
     private var timeCount: Float = 0f
     private var time2Count: Float = 0f
+    private var time3Count: Float = 0f
     private var timerIsOn: Boolean = false
     private var timer2IsOn: Boolean = false
+    private var timer3IsOn: Boolean = false
     private var timeToBeat: Int = 15
     private var font: BitmapFont = BitmapFont()
     private var font2: BitmapFont = BitmapFont()
 
     private var position: Vector3 = Vector3()
     private var movingRight: Boolean = true
+    private var movingRight2: Boolean = false
     private var meteorHasSpawn: Boolean = false
     private var meteor2HasSpawn: Boolean = false
+    private var airPlatformHasBeenHit: Boolean = false
     private var hasLost: Boolean = false
     private var frame: Int = 0
 
@@ -144,31 +143,41 @@ class StateLevel2(gsm: GameStateManager) : GameState(gsm) {
         airPlatformMoving()
         playerTextureAnimation()
 
-        if (player.body.position.x > airPlatform1.body.position.x-staticPlatformSize.x/2/ppm && player.body.position.y > airPlatform1.body.position.y && !meteorHasSpawn) {
+        if (player.body.position.x > airPlatform1.body.position.x-staticPlatformSize.x/2/ppm && player.body.position.y>airPlatform1.body.position.y && !meteorHasSpawn && player.body.position.x<airPlatform1.body.position.x+staticPlatformSize.x/2/ppm) {
             meteorCircleBody = creatingMeteorBall(meteorPosition.x, meteorPosition.y, meteorSize)
             meteorQueueBody = creatingMeteorQueue(meteorPosition.x-20, meteorPosition.y-10)
             meteorHasSpawn = true
             timer2IsOn = true
+            airPlatformHasBeenHit = true
         }
         if (meteorHasSpawn && meteorCircleBody!=null) {
             fallingMeteor(16f)
         }
 
-        if (player.hasHitGround4 && !meteor2HasSpawn) {
-            meteorCircleBody = creatingMeteorBall(meteor2Position.x, meteor2Position.y, meteorSize)
-            meteorQueueBody = creatingMeteorQueue(meteor2Position.x-20, meteor2Position.y-10)
-            meteor2HasSpawn = true
+        if(airPlatformHasBeenHit){
+            staticThenKineMoving()
         }
+
+
         if (meteor2HasSpawn && meteorCircleBody!=null)
             fallingMeteor(45f)
+
+        if (player.hasHitMovingTiny) {
+            timer3IsOn = true
+        }
 
         if (timerIsOn)
             timeCount += dt
         if (timer2IsOn)
             time2Count+=dt
+        if (timer3IsOn)
+            time3Count+=dt
 
-        if (time2Count > 1.8f) {
+        if (time2Count > 1.4f) {
             airPlatform1.body.setLinearVelocity(0f, airPlatform1.body.linearVelocity.y - 2)
+        }
+        if (time3Count > 0.5f) {
+            movingPlatform.body.setLinearVelocity(movingPlatform.body.linearVelocity.x, movingPlatform.body.linearVelocity.y - 1)
         }
 
 
@@ -182,15 +191,14 @@ class StateLevel2(gsm: GameStateManager) : GameState(gsm) {
             hasLost = true
             frame++
             if (frame==10) {
-                gsm.set(StateLevel1(gsm))
+                gsm.set(StateLevel2(gsm))
             }
-        } else if (player.body.position.x > 53) {
+        } else if (player.body.position.x > 55 && player.body.position.y > groundPlatformHeight) {
             gsm.stateLevelNumber++
 //
-            if (gsm.backgroundsAvailable<2) {
-                gsm.backgroundsAvailable++
+            if (gsm.levelsAvailable<3) {
                 gsm.levelsAvailable++
-                gsm.platformsAvailable++
+                //gsm.platformsAvailable++
                 gsm.meteorsAvailable++
                 gsm.newUnlock = true
             }
@@ -218,15 +226,16 @@ class StateLevel2(gsm: GameStateManager) : GameState(gsm) {
         // decors
         sb.draw(background, -45f, -150f, Constants.WINDOWS_WIDTH.toFloat(), Constants.WINDOWS_HEIGHT.toFloat())
         sb.draw(air, airPlatform1.body.position.x*ppm-staticPlatformSize.x/2, airPlatform1.body.position.y*ppm+5, staticPlatformSize.x, 5f) // static platform
-        sb.draw(air, movingPlatform.body.position.x*ppm-movingPlatformSize.x/2, movingPlatform.body.position.y*ppm-movingPlatformSize.y/3.5f, movingPlatformSize.x, movingPlatformSize.y)  // moving air platform
+        sb.draw(air, airPlatform2.body.position.x*ppm-30/2, airPlatform2.body.position.y*ppm+5, 30f, 30f)
+        sb.draw(air, airPlatform3.body.position.x*ppm-airPlatform3Size.x/2, airPlatform3.body.position.y*ppm-airPlatform3Size.y/2, airPlatform3Size.x, airPlatform3Size.y)  // intouchable one
+//
         sb.draw(ground, groundPlatform1.body.position.x*ppm-groundPlatform1Size.x/2, groundPlatform1.body.position.y*ppm+5, groundPlatform1Size.x, groundPlatform1Size.y)
+        sb.draw(ground, groundPlatformEnd.body.position.x*ppm-75/2, groundPlatformEnd.body.position.y*ppm+5, 75f, 10f)
         // player
         sb.draw(playerTexture, player.body.position.x * ppm - 25, player.body.position.y * ppm - 35, 50f, 109.5f)
-
-        sb.draw(ground, groundPlatform2.body.position.x*ppm-groundPlatform2Size.x/2, groundPlatform2.body.position.y*ppm-groundPlatform2Size.y/2+4, groundPlatform2Size.x, groundPlatform2Size.y)
-        sb.draw(ground, groundPlatform3.body.position.x*ppm-groundPlatform2Size.x/2, groundPlatform3.body.position.y*ppm-groundPlatform2Size.y/2+4, groundPlatform2Size.x, groundPlatform2Size.y)
-        sb.draw(ground, groundPlatform4.body.position.x*ppm-groundPlatform2Size.x/2, groundPlatform4.body.position.y*ppm-groundPlatform2Size.y/2+4, groundPlatform2Size.x, groundPlatform2Size.y)
-
+//
+        sb.draw(ground, movingPlatform.body.position.x*ppm-movingPlatformSize.x/2, movingPlatform.body.position.y*ppm-movingPlatformSize.y/2+4, movingPlatformSize.x, movingPlatformSize.y)
+//
         if (meteorCircleBody != null) {
             sb.draw(TextureRegion(meteorTexture), meteorCircleBody!!.body.position.x*ppm-55, meteorCircleBody!!.body.position.y*ppm-23, 0f, 0f, 100f, 100f, 1f, 1f, 340f)
         }
@@ -265,14 +274,28 @@ class StateLevel2(gsm: GameStateManager) : GameState(gsm) {
 
     private fun airPlatformMoving() {
         if (movingRight) {
-            movingPlatform.body.setLinearVelocity(2f, movingPlatform.body.linearVelocity.y)
-            if (movingPlatform.body.position.x>3f)
+            movingPlatform.body.setLinearVelocity(3f, movingPlatform.body.linearVelocity.y)
+            if (movingPlatform.body.position.x>Constants.WINDOWS_WIDTH/2.4f/ppm)
                 movingRight = false
 
         } else if (!movingRight) {
-            movingPlatform.body.setLinearVelocity(-2f, movingPlatform.body.linearVelocity.y)
-            if (movingPlatform.body.position.x<-1f)
+            movingPlatform.body.setLinearVelocity(-3f, movingPlatform.body.linearVelocity.y)
+            if (movingPlatform.body.position.x*ppm<movingPlatformPosition.x
+            )
                 movingRight = true
+        }
+    }
+
+    private fun staticThenKineMoving() {
+        if (movingRight2) {
+            airPlatform2.body.setLinearVelocity(3f, airPlatform2.body.linearVelocity.y)
+            if (airPlatform2.body.position.x>Constants.WINDOWS_WIDTH/1.5f/Constants.PPM)
+                movingRight2 = false
+
+        } else if (!movingRight2) {
+            airPlatform2.body.setLinearVelocity(-3f, airPlatform2.body.linearVelocity.y)
+            if (airPlatform2.body.position.x*ppm<Constants.WINDOWS_WIDTH/2.6f-70)
+                movingRight2 = true
         }
     }
 

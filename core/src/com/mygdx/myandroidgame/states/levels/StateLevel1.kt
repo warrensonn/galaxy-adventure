@@ -78,10 +78,9 @@ class StateLevel1(gsm: GameStateManager) : GameState(gsm) {
     private var meteorTexture: Texture = Texture(Gdx.files.internal("projectile/meteor" + gsm.selectedMeteor + ".png"))
     private val meteorSize: Float = 0.65f
     private val meteorPosition: Vector2 = Vector2(Constants.WINDOWS_WIDTH/3.2f, 600f)
-    private val meteor2Position: Vector2 = Vector2(groundPlatform2Position.x+380, 600f)
+    private val meteor2Position: Vector2 = Vector2(groundPlatform2Position.x+370, 600f)
     private var meteorCircleBody: CircleBody? = null
     private var meteorQueueBody: MeteorQueue? = null
-
 
 
     // counter display on screen
